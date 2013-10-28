@@ -5,13 +5,13 @@ $($expiringUsers = Search-ADAccount -AccountExpired
 $modName = 'ActiveDirectory'
 
 If (-not(Get-Module -name $modName)) { 
-		If (Get-Module -ListAvailable | Where-Object { $_.name -eq $modName }) { 
-			Import-Module -Name $modName 
-			Write-Host "Loaded " $modName " module."
-		} else {
-			Write-Host $modName " module not available. Unable to continue." 
-		}
+	If (Get-Module -ListAvailable | Where-Object { $_.name -eq $modName }) { 
+		Import-Module -Name $modName 
+		Write-Host "Loaded " $modName " module."
+	} else {
+		Write-Host $modName " module not available. Unable to continue." 
 	}
+}
 
 Foreach ($item in $expiringUsers) {	
 	
