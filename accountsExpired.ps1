@@ -3,31 +3,29 @@
 $($expiringUsers = Search-ADAccount -AccountExpired
 
 $modName = 'ActiveDirectory'
+
 If (-not(Get-Module -name $modName)) { 
-	If (Get-Module -ListAvailable | Where-Object { $_.name -eq $modName }) { 
-		Import-Module -Name $modName 
-		Write-Host "Loaded " $modName " module."
-		}
-	else {
-		Write-Host $modName " module not available. Unable to continue." 
+		If (Get-Module -ListAvailable | Where-Object { $_.name -eq $modName }) { 
+			Import-Module -Name $modName 
+			Write-Host "Loaded " $modName " module."
+		} else {
+			Write-Host $modName " module not available. Unable to continue." 
 		}
 	}
 
-Foreach ($item in $expiringUsers){	
+Foreach ($item in $expiringUsers) {	
 	
 	$item = Get-ADUser $item -Properties GivenName, Surname, manager, 
-										 AccountExpirationDate, enabled, Department, Division, title, samaccountname, mail, telephoneNumber, employeeID
-					
+										 AccountExpirationDate, enabled, Department, Division, title, samaccountname, mail, telephoneNumber, employeeID				
 	Add-Member -input $item NoteProperty 'Manager Name' 'None' -Force
 	Add-Member -input $item NoteProperty 'Manager E-mail' 'None' -Force
 	Add-Member -input $item NoteProperty 'Employee Name' 'None' -Force
 	
 	$item.'Employee Name' = $item.GivenName + ' ' + $item.Surname
 	
-	if ($item.Manager){
-	
-	$item.'Manager Name' = (Get-ADUser -Identity $item.manager -Properties GivenName).GivenName + ' ' + (Get-ADUser -Identity $item.manager -Properties Surname).Surname
-	$item.'Manager E-Mail' = (Get-ADUser -Identity $item.manager -Properties mail).Mail
+	if ($item.Manager) {
+		$item.'Manager Name' = (Get-ADUser -Identity $item.manager -Properties GivenName).GivenName + ' ' + (Get-ADUser -Identity $item.manager -Properties Surname).Surname
+		$item.'Manager E-Mail' = (Get-ADUser -Identity $item.manager -Properties mail).Mail
 	}
 
 	$item | select 'Employee Name', 'Manager Name', 'Manager E-mail', AccountExpirationDate, enabled, 
@@ -35,4 +33,6 @@ Foreach ($item in $expiringUsers){
 					
 }) | Export-Csv $path -NoTypeInformation
 
-If (Test-Path $path) { Write-Host -NoNewline `n"Export of all AD accounts that are expired have been exported to the following file:" `n `n $path `n `n}
+If (Test-Path $path) {
+	Write-Host -NoNewline `n"Export of all AD accounts that are expired have been exported to the following file:" `n `n $path `n `n
+}
